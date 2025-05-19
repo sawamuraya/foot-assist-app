@@ -6,22 +6,21 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from fpdf import FPDF
 import datetime
 import os
-import requests
+import gdown
 
-# ✅ Google Driveからモデルをダウンロードして読み込む（キャッシュ付き）
+# ✅ Google Driveからモデルをダウンロード（gdown使用）
 @st.cache_resource
 def download_and_load_model():
     model_path = "arch_classifier_model.h5"
-    model_url = "https://drive.google.com/uc?export=download&id=1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"
+    file_id = "1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"
+    url = f"https://drive.google.com/uc?id={file_id}"
 
     if not os.path.exists(model_path):
-        response = requests.get(model_url)
-        with open(model_path, 'wb') as f:
-            f.write(response.content)
+        gdown.download(url, model_path, quiet=False)
 
     return load_model(model_path)
 
-# ✅ モデル読み込み
+# ✅ モデルを読み込み
 try:
     with st.spinner("AIモデルを読み込み中..."):
         model = download_and_load_model()
@@ -29,7 +28,7 @@ except Exception as e:
     st.error(f"モデル読み込みエラー：{e}")
     st.stop()
 
-# 🔎 説明文データ
+# 説明文
 arch_descriptions = {
     "Flat": "偏平足は土踏まずが低下または消失し、足裏全体が地面に接している状態です。本来、土踏まずは歩行時の衝撃を吸収する役割を持っていますが、それが機能しにくくなるため、足の疲れやすさ、足裏の痛み、膝や腰への負担増加といったトラブルが起こりやすくなります。また、外反母趾や内反小趾のリスクも高まります。長時間の立ち仕事や歩行で不調を感じることが多いため、土踏まずを支えるインソールや、足にフィットした靴選びが重要です。早めの対策が、将来的な関節トラブルの予防につながります。",
     "High": "ハイアーチは土踏まずが通常より高く、足裏の接地面が少ない状態です。このため、歩行や走行時の衝撃が一点に集中しやすく、足裏、かかと、膝、腰などに痛みを引き起こしやすい傾向があります。また、足の柔軟性が低下しがちで、バランスが不安定になりやすく、捻挫のリスクも増加します。クッション性のある靴や衝撃吸収性に優れたインソールを活用することで、負担を軽減し、快適な歩行が可能になります。日常的なストレッチや足のケアも予防につながります。",
@@ -44,13 +43,13 @@ leg_descriptions = {
 
 bunion_description = "外反母趾とは、足の親指（母趾）が外側に曲がり、付け根の関節が内側に突出して変形する症状です。適切な靴選びや、足指を広げる体操・インソールによるサポートで進行を防ぐことが可能です。"
 
-# 🎛 UI構築
+# 🖼 ユーザー入力
 st.title("足型インソール診断アプリ（AI分類＋PDF出力）")
 leg_shape = st.radio("脚の形状を選んでください", ["O脚", "X脚", "正常"])
 has_bunion = st.radio("外反母趾の有無", ["あり", "なし"])
 uploaded_file = st.file_uploader("足裏画像をアップロードしてください", type=["jpg", "jpeg", "png"])
 
-# 🔍 AI診断処理
+# 画像アップロード後の処理
 if uploaded_file is not None:
     try:
         image = Image.open(uploaded_file).convert("RGB")
@@ -80,7 +79,7 @@ if uploaded_file is not None:
     st.success(f"🦶 あなたの足型分類パターンID：**{pattern_id} / 12**")
     st.info(f"このタイプにおすすめのインソール：**インソール{pattern_id}番** をお試しください！")
 
-    # 🔎 説明表示
+    # 説明文表示
     arch_text = arch_descriptions.get(arch_label, "")
     leg_text = leg_descriptions.get(leg_shape, "")
     bunion_text = bunion_description if has_bunion == "あり" else ""
@@ -95,7 +94,7 @@ if uploaded_file is not None:
         st.subheader("👣 外反母趾について")
         st.write(bunion_text)
 
-    # 📄 PDF出力（日本語フォント対応）
+    # PDF出力（日本語フォント）
     if st.button("📄 診断結果をPDFでダウンロード"):
         pdf = FPDF()
         pdf.add_page()

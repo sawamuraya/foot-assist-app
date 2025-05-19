@@ -3,4 +3,4 @@ tensorflow
 Pillow
 numpy
 fpdf
-requests
+gdown
