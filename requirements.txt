@@ -2,4 +2,5 @@ streamlit>=1.27
 tensorflow>=2.10
 numpy
 Pillow
+reportlab
 
