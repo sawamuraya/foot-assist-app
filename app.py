@@ -1,3 +1,5 @@
+st.caption("🧠 現在のAIモデル：arch_classifier_model_v3（2025/05/26更新）")
+
 import streamlit as st
 from PIL import Image
 import numpy as np
