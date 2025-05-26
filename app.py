@@ -6,6 +6,9 @@ from tensorflow.keras.preprocessing.image import img_to_array
 import os
 import datetime
 
+# アプリのタイトル（← これを先に書く）
+st.title("足型インソール診断アプリ（AI画像分類つき）")
+
 # モデルファイル情報
 MODEL_PATH = "arch_classifier_model.h5"
 MODEL_VERSION = "arch_classifier_model_v3"
@@ -18,9 +21,6 @@ if os.path.exists(MODEL_PATH):
     st.caption(f"🧠 使用モデル：{MODEL_VERSION}（更新日時：{modified_date}）")
 else:
     st.caption("⚠️ モデルファイルが見つかりません")
-
-# アプリのタイトル
-st.title("足型インソール診断アプリ（AI画像分類つき）")
 
 # ユーザー入力
 leg_shape = st.radio("脚の形状を選んでください", ["O脚", "X脚", "正常"])
