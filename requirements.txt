@@ -1,6 +1,7 @@
 streamlit>=1.27
 tensorflow>=2.10
+pillow
 numpy
-Pillow
-reportlab
+fpdf2
+gdown
 
