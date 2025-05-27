@@ -1,3 +1,12 @@
+import streamlit as st
+from PIL import Image
+import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+import gdown
+import os  # ← これを忘れずに！
+import datetime
+
 # モデルファイルをGoogle Driveから取得（ファイルIDをあなたのものに置換）
 import gdown
 
