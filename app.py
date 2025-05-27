@@ -1,19 +1,36 @@
-import gdown
+import streamlit as st
+from PIL import Image
+import numpy as np
 import os
+import datetime
+import gdown
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
 
+# モデルの設定
 MODEL_PATH = "arch_classifier_model.h5"
-GOOGLE_DRIVE_FILE_ID = "1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"
+GOOGLE_DRIVE_FILE_ID = "1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"  # ← あなたのGoogle DriveのファイルID
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={GOOGLE_DRIVE_FILE_ID}"
 
-# モデルが無ければダウンロード
+# モデルがなければGoogle Driveからダウンロード
 if not os.path.exists(MODEL_PATH):
-    st.warning("🧠 モデルファイルが見つからないため、ダウンロードを開始します…")
+    st.warning("🧠 モデルファイルが見つからないため、ダウンロードを開始します...")
     try:
         gdown.download(DOWNLOAD_URL, MODEL_PATH, quiet=False)
         st.success("✅ モデルを正常にダウンロードしました。")
     except Exception as e:
-        st.error(f"モデル読み込みエラー：{e}")
+        st.error(f"❌ モデルダウンロードに失敗しました：{e}")
         st.stop()
+
+# モデル情報の表示
+if os.path.exists(MODEL_PATH):
+    timestamp = os.path.getmtime(MODEL_PATH)
+    modified_date = datetime.datetime.fromtimestamp(timestamp).strftime('%Y/%m/%d %H:%M')
+    st.caption(f"🧠 使用モデル：Google Drive モデル（更新日時：{modified_date}）")
+else:
+    st.error("❌ モデルファイルが読み込めませんでした。")
+    st.stop()
+
 
 # ユーザー入力
 leg_shape = st.radio("脚の形状を選んでください", ["O脚", "X脚", "正常"])
