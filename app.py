@@ -1,25 +1,25 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
 import os
 import datetime
 import gdown
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import img_to_array
 
-# モデルの設定
+# モデル設定
 MODEL_PATH = "arch_classifier_model.h5"
-GOOGLE_DRIVE_FILE_ID = "1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"  # ← あなたのGoogle DriveのファイルID
+GOOGLE_DRIVE_FILE_ID = "1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={GOOGLE_DRIVE_FILE_ID}"
 
-# モデルがなければGoogle Driveからダウンロード
+# モデルがなければダウンロード
 if not os.path.exists(MODEL_PATH):
-    st.warning("🧠 モデルファイルが見つからないため、ダウンロードを開始します...")
+    st.warning("🔄 モデルファイルが見つからなかったため、Google Drive からダウンロードしています...")
     try:
         gdown.download(DOWNLOAD_URL, MODEL_PATH, quiet=False)
         st.success("✅ モデルを正常にダウンロードしました。")
     except Exception as e:
-        st.error(f"❌ モデルダウンロードに失敗しました：{e}")
+        st.error(f"❌ モデルのダウンロードに失敗しました: {e}")
         st.stop()
 
 # モデル情報の表示
