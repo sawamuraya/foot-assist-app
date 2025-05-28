@@ -9,7 +9,7 @@ import datetime
 
 # モデルファイルのパスとバージョン
 MODEL_PATH = "arch_classifier_model.h5"
-MODEL_VERSION = "arch_classifier_model_v3"
+MODEL_VERSION = "arch_classifier_model_v2"
 GDRIVE_URL = "https://drive.google.com/uc?id=1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"
 MODEL_UPDATE_DATE = "2025/05/28"
 
@@ -79,5 +79,3 @@ if uploaded_file is not None:
 
     # インソール提案（仮）
     st.info(f"このタイプにおすすめのインソール：**インソール{pattern_id}番** をお試しください！")
-
-
