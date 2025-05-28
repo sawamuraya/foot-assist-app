@@ -79,4 +79,3 @@ if uploaded_file is not None:
 
     # インソール提案（仮）
     st.info(f"このタイプにおすすめのインソール：**インソール{pattern_id}番** をお試しください！")
-
