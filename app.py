@@ -9,9 +9,9 @@ import datetime
 
 # モデルファイルのパスとバージョン
 MODEL_PATH = "arch_classifier_model.h5"
-MODEL_VERSION = "arch_classifier_model_legacy_final"
-GDRIVE_URL = "https://drive.google.com/uc?id=1NmuLbyYsysLqTa49jSmKU2mRp7MzbJWS"
-MODEL_UPDATE_DATE = "2025/05/28"
+MODEL_VERSION = "arch_classifier_model_final_exported"
+GDRIVE_URL = "https://drive.google.com/uc?id=1ELaWSINj-02N5MnLhSgNCPBMXBkvrLko"
+MODEL_UPDATE_DATE = "2025/05/29"
 
 # モデルファイルがなければ Google Drive からダウンロード
 if not os.path.exists(MODEL_PATH):
@@ -79,3 +79,4 @@ if uploaded_file is not None:
 
     # インソール提案（仮）
     st.info(f"このタイプにおすすめのインソール：**インソール{pattern_id}番** をお試しください！")
+
