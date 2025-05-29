@@ -9,8 +9,8 @@ import datetime
 
 # モデルファイルのパスとバージョン
 MODEL_PATH = "arch_classifier_model.h5"
-MODEL_VERSION = "arch_classifier_model_final_exported"
-GDRIVE_URL = "https://drive.google.com/uc?id=1ELaWSINj-02N5MnLhSgNCPBMXBkvrLko"
+MODEL_VERSION = "final_streamlit_export"
+GDRIVE_URL = "https://drive.google.com/uc?id=1-0jLv-ahm5Vs06Q7aXE3N4SS22R4HOAh"
 MODEL_UPDATE_DATE = "2025/05/29"
 
 # モデルファイルがなければ Google Drive からダウンロード
@@ -22,7 +22,7 @@ if not os.path.exists(MODEL_PATH):
         st.error(f"モデル読み込みエラー：{e}")
         st.stop()
 
-# モデル読み込み（エラーキャッチあり）
+# モデル読み込み
 try:
     model = load_model(MODEL_PATH, compile=False)
     timestamp = os.path.getmtime(MODEL_PATH)
@@ -32,10 +32,10 @@ except Exception as e:
     st.error(f"モデル読み込みエラー：{e}")
     st.stop()
 
-# アプリのタイトル
-st.title("足型インソール診断アプリ（AI画像分類つき）")
+# アプリタイトル
+st.title("足型インソール診断アプリ（ResNetベースAI画像分類）")
 
-# ユーザー入力（脚の形状・外反母趾）
+# ユーザー入力
 leg_shape = st.radio("脚の形状を選んでください", ["O脚", "X脚", "正常"])
 has_bunion = st.radio("外反母趾の有無", ["あり", "なし"])
 
@@ -51,7 +51,7 @@ if uploaded_file is not None:
 
     st.image(image, caption="アップロードされた足裏画像", use_column_width=True)
 
-    # 前処理（サイズ調整と正規化）
+    # 前処理
     image_resized = image.resize((224, 224))
     img_array = img_to_array(image_resized) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
@@ -60,7 +60,7 @@ if uploaded_file is not None:
     prediction = model.predict(img_array)
     predicted_index = np.argmax(prediction)
 
-    # ラベルマッピング
+    # ラベル定義
     label_map = {0: "High", 1: "Normal", 2: "Flat"}
     arch_label = label_map[predicted_index]
 
@@ -77,6 +77,7 @@ if uploaded_file is not None:
     pattern_id = get_pattern_id(arch_label, leg_shape, has_bunion)
     st.success(f"🦶 あなたの足型分類パターンID：**{pattern_id} / 12**")
 
-    # インソール提案（仮）
+    # 推奨インソール表示
     st.info(f"このタイプにおすすめのインソール：**インソール{pattern_id}番** をお試しください！")
+
 
