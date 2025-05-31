@@ -9,15 +9,14 @@ import datetime
 from fpdf import FPDF
 import base64
 
-# モデル設定（パスとGoogle Drive IDを修正）
-MODEL_PATH = "/content/drive/MyDrive/footassist/final_streamlit_export.h5"
+# モデル設定
+MODEL_PATH = "final_streamlit_export.h5"
 MODEL_VERSION = "final_streamlit_export"
 GDRIVE_URL = "https://drive.google.com/uc?id=1-0jLv-ahm5Vs06Q7aXE3N4SS22R4HOAh"
 
-# モデルダウンロード（必要な場合）
+# モデルダウンロード
 if not os.path.exists(MODEL_PATH):
     st.warning("📦 モデルファイルが見つからないため、ダウンロードを開始します…")
-    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
     gdown.download(GDRIVE_URL, MODEL_PATH, quiet=False)
 
 # モデル読み込み
@@ -50,18 +49,18 @@ leg_descriptions = {
 
 bunion_description = "外反母趾は、母趾が外側に曲がり付け根が内側に突出する症状で、早期対策が重要です。"
 
-# 推奨インソール番号マッピング
+# インソール番号辞書（12パターン）
 insole_map = {
-    "Flat":   {"O脚": 1, "X脚": 2, "正常": 3},
-    "High":   {"O脚": 4, "X脚": 5, "正常": 6},
-    "外反母趾": {"O脚": 7, "X脚": 8, "正常": 9},
-    "Normal": {"O脚": 10, "X脚": 11, "正常": 12},
+    ("Flat", "O脚"): "1", ("Flat", "X脚"): "2", ("Flat", "正常"): "3",
+    ("High", "O脚"): "4", ("High", "X脚"): "5", ("High", "正常"): "6",
+    ("Normal", "O脚"): "9", ("Normal", "X脚"): "10", ("Normal", "正常"): "11",
+    ("外反母趾", "O脚"): "7", ("外反母趾", "X脚"): "8"
 }
 
-# ラベル辞書
+# ラベル辞書（モデル出力インデックス → ラベル）
 label_map = {0: "High", 1: "Normal", 2: "Flat"}
 
-# 分析実行
+# 分析
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
     st.image(image, caption="アップロードされた画像", use_column_width=True)
@@ -74,22 +73,21 @@ if uploaded_file is not None:
     predicted_index = np.argmax(prediction)
     arch_label = label_map[predicted_index]
 
+    # 外反母趾がある場合は上書き
+    final_arch = "外反母趾" if has_bunion == "あり" else arch_label
+    insole_id = insole_map.get((final_arch, leg_shape), "12")
+
     st.markdown(f"### 🧠 AI診断結果：**{arch_label}**")
-    st.success(f"🦶 パターンID：**{arch_label}-{leg_shape}-{has_bunion}**")
+    st.success(f"🦶 推奨インソール番号：**{insole_id}番**")
 
-    # インソール番号判定
-    arch_key = "外反母趾" if has_bunion == "あり" else arch_label
-    insole_num = insole_map.get(arch_key, {}).get(leg_shape, "不明")
-    st.markdown(f"**🔢 推奨インソール番号： `{insole_num}`**")
-
-    # 解説
+    # 解説表示
     st.subheader("📝 解説")
     st.markdown(f"**アーチタイプ**：{arch_label}  \n{arch_descriptions.get(arch_label, '')}")
     st.markdown(f"**脚の形状**：{leg_shape}  \n{leg_descriptions.get(leg_shape, '')}")
     if has_bunion == "あり":
         st.markdown(f"**外反母趾**：あり  \n{bunion_description}")
 
-    # PDF生成ボタン
+    # PDF生成
     if st.button("📄 PDFで診断結果を出力"):
         pdf = FPDF()
         pdf.add_page()
@@ -111,9 +109,11 @@ if uploaded_file is not None:
         else:
             pdf.cell(200, 10, txt="外反母趾：なし", ln=1)
 
-        pdf.ln(5)
-        pdf.cell(200, 10, txt=f"推奨インソール番号：{insole_num}", ln=1)
+        pdf.ln(10)
+        pdf.set_font("Arial", "B", 12)
+        pdf.cell(200, 10, txt=f"🦶 推奨インソール番号：{insole_id} 番", ln=1)
 
+        # 保存
         pdf_path = "/tmp/diagnosis_result.pdf"
         pdf.output(pdf_path)
 
@@ -122,4 +122,3 @@ if uploaded_file is not None:
             b64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
             pdf_link = f'<a href="data:application/pdf;base64,{b64_pdf}" download="足型診断結果.pdf">📥 PDFをダウンロード</a>'
             st.markdown(pdf_link, unsafe_allow_html=True)
-
